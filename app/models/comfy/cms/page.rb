@@ -43,7 +43,9 @@ class Comfy::Cms::Page < ActiveRecord::Base
   validate :validate_format_of_unescaped_slug
 
   # -- Scopes ------------------------------------------------------------------
-  scope :published, -> { where(is_published: true) }
+  scope :draft, -> { where(published_at: nil) }
+  scope :published, ->(now = DateTime.now) { where.not(published_at: nil).where(arel_attribute(:published_at).lteq(now)) }
+  scope :scheduled_for_publish, ->(now = DateTime.now) { where.not(published_at: nil).where(arel_attribute(:published_at).gt(now)) }
 
   # -- Class Methods -----------------------------------------------------------
   # Tree-like structure for pages

@@ -17,7 +17,9 @@ class Comfy::Cms::Translation < ActiveRecord::Base
   before_validation :assign_layout
 
   # -- Scopes ------------------------------------------------------------------
-  scope :published, -> { where(is_published: true) }
+  scope :draft, -> { where(published_at: nil) }
+  scope :published, ->(now = DateTime.now) { where.not(published_at: nil).where(arel_attribute(:published_at).lteq(now)) }
+  scope :scheduled_for_publish, ->(now = DateTime.now) { where.not(published_at: nil).where(arel_attribute(:published_at).gt(now)) }
 
   # -- Validations -------------------------------------------------------------
   validates :label,
